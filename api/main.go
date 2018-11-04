@@ -9,7 +9,9 @@ import (
   "github.com/gorilla/mux"
 )
 
-const PORT = "9009"
+const PORT = ":9009"
+const TIMEOUT_READ = 5 * time.Second
+const TIMEOUT_WRITE = 10 * time.Second
 
 func main()  {
   l := log.Println
@@ -27,11 +29,11 @@ func main()  {
 
   logger := log.New(os.Stderr, "logger: ", log.Lshortfile)
 	srv := &http.Server{
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		Addr:         ":" + PORT,
-		Handler:      context.ClearHandler(http.DefaultServeMux),
-		ErrorLog:     logger,
+		ReadTimeout: TIMEOUT_READ,
+		WriteTimeout: TIMEOUT_WRITE,
+		Addr: PORT,
+		Handler: context.ClearHandler(http.DefaultServeMux),
+		ErrorLog: logger,
 	}
 	err := srv.ListenAndServe()
 	if err != nil {
