@@ -14,19 +14,19 @@ import (
 
 //-----------------------------------------------------------------------------
 // handler functions
-func userIndex(service user.Repository) http.Handler {
+func postIndex(service post.Repository) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("user Index called")
-		errorMessage := "Error reading bookmarks"
-		var data []*entity.User
+    log.Println("Post Index called")
+		errorMessage := "Error reading posts"
+		var data []*entity.Post
 		var err error
 		query := r.URL.Query().Get("query")
 		switch {
 		case query == "":
-			log.Println("user Index query empty")
+			log.Println("Post Index query empty")
 			data, err = service.SelectAll()
 		default:
-			log.Println("user Index query exist")
+			log.Println("Post Index query exist")
 			data, err = service.Search(query)
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -45,14 +45,13 @@ func userIndex(service user.Repository) http.Handler {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 		}
-	})
+  })
 }
-
-func userInsert(service user.Repository) http.Handler {
+func postInsert(service post.Repository) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error adding bookmark"
-		var u *entity.User
-		err := json.NewDecoder(r.Body).Decode(&u)
+    errorMessage := "Error adding post"
+		var p *entity.Post
+		err := json.NewDecoder(r.Body).Decode(&p)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -60,7 +59,7 @@ func userInsert(service user.Repository) http.Handler {
 			return
 		}
 
-		u.ID, err = service.Insert(u)
+		p.ID, err = service.Insert(p)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -69,22 +68,21 @@ func userInsert(service user.Repository) http.Handler {
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		if err := json.NewEncoder(w).Encode(u); err != nil {
+		if err := json.NewEncoder(w).Encode(p); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 			return
 		}
-	})
+  })
 }
 //-----------------------------------------------------------------------------
+func MakePostHandler(r *mux.Router, n negroni.Negroni, service post.Repository) {
+  r.Handle("/v1/posts", n.With(
+		negroni.Wrap(postIndex(service)),
+	)).Methods("GET", "OPTIONS").Name("postIndex")
 
-func MakeUserHandler(r *mux.Router, n negroni.Negroni, service user.Repository) {
-	r.Handle("/v1/users", n.With(
-		negroni.Wrap(userIndex(service)),
-	)).Methods("GET", "OPTIONS").Name("userIndex")
-
-	r.Handle("/v1/users", n.With(
-		negroni.Wrap(userInsert(service)),
-	)).Methods("POST", "OPTIONS").Name("userInsert")
+	r.Handle("/v1/posts", n.With(
+		negroni.Wrap(postInsert(service)),
+	)).Methods("POST", "OPTIONS").Name("postInsert")
 }
