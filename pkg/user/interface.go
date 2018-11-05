@@ -5,7 +5,7 @@ import (
 )
 
 type Reader interface {
-  Select(id entityId) (*entity.User, error)
+  Select(id entity.ID) (*entity.User, error)
   SelectAll()([]*entity.User, error)
   Search(queryString string) ([]*entity.User, error)
 }
@@ -22,7 +22,8 @@ type Repository interface {
 }
 
 //UseCase use case interface
+/*
 type UseCase interface {
 	Reader
 	Writer
-}
+}*/
