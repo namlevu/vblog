@@ -40,8 +40,16 @@ func (r *RepositoryMongo)Search(queryString string) ([]*entity.Post, error) {
   return nil,nil
 }
 func (r *RepositoryMongo)Insert(p *entity.Post) (entity.ID, error) {
-  // TODO:
-  return entity.ID(0), nil
+	log.Println("RepositoryMongo Insert called");
+	session := r.Pool.Session(nil)
+	postCollection := session.DB(r.Db).C("post")
+	err := postCollection.Insert(p)
+	if err != nil {
+		log.Println("RepositoryMongo Insert Post failed");
+		return entity.ID(0), err
+	}
+
+	return p.ID, nil
 }
 func (r *RepositoryMongo)Update(p *entity.Post) (entity.ID, error) {
   // TODO:

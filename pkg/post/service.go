@@ -2,7 +2,7 @@ package post
 
 import (
 	"log"
-	//"time"
+	"time"
 
 	"vblog/pkg/entity"
 )
@@ -36,7 +36,8 @@ func (s *Service)Search(queryString string) ([]*entity.Post, error) {
   return s.repo.Search(queryString)
 }
 func (s *Service)Insert(p *entity.Post) (entity.ID, error) {
-  // TODO:
+	p.ID = entity.NewID()
+	p.CreatedAt = time.Now()
   return s.repo.Insert(p)
 }
 func (s *Service)Update(p *entity.Post) (entity.ID, error) {
