@@ -1,0 +1,8 @@
+{
+  "mongodb_host"            : "mongodb://127.0.0.1:27017",
+	"mongodb_database"        : "vblog",
+	"mongodb_connection_pool" : 5,
+	"api_port"                : 9009,
+  "timeout_read"            : 5,
+  "timeout_write"           : 10
+}

@@ -2,7 +2,7 @@ package post
 
 import (
 	"log"
-	"time"
+	//"time"
 
 	"vblog/pkg/entity"
 )
@@ -24,10 +24,11 @@ func NewService(r Repository) *Service {
 
 func (s *Service)Select(id entity.ID) (*entity.Post, error) {
   // TODO:
-  return s.repo.Insert(u)
+  return s.repo.Select(id)
 }
 func (s *Service)SelectAll()([]*entity.Post, error) {
   // TODO:
+	log.Println("Post Service SelectAll")
   return s.repo.SelectAll()
 }
 func (s *Service)Search(queryString string) ([]*entity.Post, error) {

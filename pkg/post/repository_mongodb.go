@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/juju/mgosession"
-	mgo "gopkg.in/mgo.v2"
-	bson "gopkg.in/mgo.v2/bson"
+	//mgo "gopkg.in/mgo.v2"
+	//bson "gopkg.in/mgo.v2/bson"
 	"vblog/pkg/entity"
 )
 
@@ -27,11 +27,12 @@ func NewRepositoryMongo(db string, pool *mgosession.Pool) *RepositoryMongo {
 
 func (r *RepositoryMongo)Select(id entity.ID) (*entity.Post, error) {
   // TODO:
-  var post entity.Post{}
+  var post *entity.Post
   return post,nil
 }
 func (r *RepositoryMongo)SelectAll()([]*entity.Post, error) {
   // TODO:
+	log.Println("Post Repository SelectAll")
   return nil,nil
 }
 func (r *RepositoryMongo)Search(queryString string) ([]*entity.Post, error) {

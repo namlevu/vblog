@@ -9,24 +9,25 @@ import (
 	"github.com/gorilla/mux"
 
 	"vblog/pkg/entity"
-	"vblog/pkg/user"
+	"vblog/pkg/post"
 )
 
 //-----------------------------------------------------------------------------
 // handler functions
 func postIndex(service post.Repository) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-    log.Println("Post Index called")
+		l := log.Println
+    l("Post Index called")
 		errorMessage := "Error reading posts"
 		var data []*entity.Post
 		var err error
 		query := r.URL.Query().Get("query")
 		switch {
 		case query == "":
-			log.Println("Post Index query empty")
+			l("Post Index query empty")
 			data, err = service.SelectAll()
 		default:
-			log.Println("Post Index query exist")
+			l("Post Index query exist")
 			data, err = service.Search(query)
 		}
 		w.Header().Set("Content-Type", "application/json")

@@ -14,14 +14,11 @@ import (
 	mgo "gopkg.in/mgo.v2"
 
   "vblog/api/handler"
-  "vblog/cnf/development"
+  "vblog/cnf"
   "vblog/pkg/user"
+	"vblog/pkg/post"
   "vblog/pkg/middleware"
 )
-
-const PORT = ":9009"
-const TIMEOUT_READ = 5 * time.Second
-const TIMEOUT_WRITE = 10 * time.Second
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
 	l := log.Println
@@ -32,17 +29,23 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	l := log.Println
+	l("API server is starting")
+	var configuration cnf.Configuration
+	err := cnf.LoadConfig(&configuration, cnf.DEV)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	// start db connection session
-	session, err := mgo.Dial(development.MONGODB_HOST)
+	session, err := mgo.Dial(configuration.MongodbHost)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	defer session.Close()
 
-	mPool := mgosession.NewPool(nil, session, development.MONGODB_CONNECTION_POOL)
+	mPool := mgosession.NewPool(nil, session, configuration.MongodbConnectionPool)
 	defer mPool.Close()
 	//
-	userRepo := user.NewRepositoryMongo(development.MONGODB_DATABASE, mPool)
+	userRepo := user.NewRepositoryMongo(configuration.MongodbDatabase, mPool)
 	userService := user.NewService(userRepo)
 
 	// route config
@@ -53,15 +56,20 @@ func main() {
 		negroni.NewLogger(),
 	)
 	handler.MakeUserHandler(r, *n, userService)
+
+	postRepo := post.NewRepositoryMongo(configuration.MongodbDatabase, mPool)
+	postService := post.NewService(postRepo)
+	handler.MakePostHandler(r, *n, postService)
+
 	// handle and start sersion
 	http.Handle("/", r)
 	r.HandleFunc("/ping", pingHandler)
 
 	logger := log.New(os.Stderr, "logger: ", log.Lshortfile)
 	srv := &http.Server{
-		ReadTimeout:  TIMEOUT_READ,
-		WriteTimeout: TIMEOUT_WRITE,
-		Addr:         ":" + strconv.Itoa(development.API_PORT),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		Addr:         ":" + strconv.Itoa(configuration.ApiPort),
 		Handler:      context.ClearHandler(http.DefaultServeMux),
 		ErrorLog:     logger,
 	}
@@ -71,6 +79,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-
-	l("API server is running")
 }
