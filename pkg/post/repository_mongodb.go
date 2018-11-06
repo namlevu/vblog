@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/juju/mgosession"
-	//mgo "gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	//bson "gopkg.in/mgo.v2/bson"
 	"vblog/pkg/entity"
 )
@@ -33,7 +33,23 @@ func (r *RepositoryMongo)Select(id entity.ID) (*entity.Post, error) {
 func (r *RepositoryMongo)SelectAll()([]*entity.Post, error) {
   // TODO:
 	log.Println("Post Repository SelectAll")
-  return nil,nil
+	var posts []*entity.Post
+	session := r.Pool.Session(nil)
+
+	coll := session.DB(r.Db).C("post")
+
+	err := coll.Find(nil).Sort("created_at").All(&posts)
+	switch err {
+	case nil:
+		return posts, nil
+	case mgo.ErrNotFound:
+		log.Println("RepositoryMongo SelectAll ErrNotFound");
+		return nil, entity.ErrNotFound
+	default:
+		log.Println("RepositoryMongo SelectAll default");
+		return nil, err
+	}
+
 }
 func (r *RepositoryMongo)Search(queryString string) ([]*entity.Post, error) {
   // TODO:
