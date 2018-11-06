@@ -1,8 +1,10 @@
 package cnf
 
 import (
+  "log"
   "os"
   "encoding/json"
+  "path/filepath"
 )
 
 type Configuration struct {
@@ -22,9 +24,14 @@ const (
 
 func LoadConfig(configuration *Configuration, mode Mode) error {
   var filename = ""
+  dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+  if err != nil {
+    log.Fatal(err)
+  }
+  
   switch mode {
   case DEV:
-    filename = "C:\\go-work\\src\\vblog\\cnf\\configuration.default.json"
+    filename = dir+"/"+"configuration.dev.json"
     break
   case PROD:
     filename = "configuration.prod.json"

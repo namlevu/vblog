@@ -30,12 +30,13 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	l := log.Println
-	l("API server is starting")
+
 	var configuration cnf.Configuration
 	err := cnf.LoadConfig(&configuration, cnf.DEV)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	l("API server is starting in port:", configuration.ApiPort)
 	// start db connection session
 	session, err := mgo.Dial(configuration.MongodbHost)
 	if err != nil {
