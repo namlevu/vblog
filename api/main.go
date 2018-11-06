@@ -15,6 +15,7 @@ import (
 
   "vblog/api/handler"
   "vblog/cnf"
+	"vblog/pkg/auth"
   "vblog/pkg/user"
 	"vblog/pkg/post"
   "vblog/pkg/middleware"
@@ -60,6 +61,10 @@ func main() {
 	postRepo := post.NewRepositoryMongo(configuration.MongodbDatabase, mPool)
 	postService := post.NewService(postRepo)
 	handler.MakePostHandler(r, *n, postService)
+
+	authRepo := auth.NewRepositoryMongo(configuration.MongodbDatabase, mPool)
+	authService := auth.NewService(authRepo)
+	handler.MakeAuthHandler(r, *n, authService)
 
 	// handle and start sersion
 	http.Handle("/", r)
